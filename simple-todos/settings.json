@@ -1,0 +1,7 @@
+{
+  "galaxy.meteor.com": {
+    "env": {
+      "MONGO_URL": "mongodb://admin:Abc12345#@ds049744.mlab.com:49744/todo"
+    }
+  }
+}

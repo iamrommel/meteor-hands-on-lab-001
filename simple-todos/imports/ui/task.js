@@ -1,4 +1,6 @@
+import { Meteor } from 'meteor/meteor';
 import { Template } from 'meteor/templating';
+import { ReactiveDict } from 'meteor/reactive-dict';
 import { Tasks } from '../api/tasks.js'
 
 import './task.html';
@@ -6,10 +8,31 @@ import './task.html';
 
 Template.body.helpers({
      tasks() {
+
+         const instance =  Template.instance();
+         if(instance.state.get('hideCompleted')){
+             return Tasks.find({checked: {$ne: true}}, {sort: {createdAt: -1}});
+         }
+
          return Tasks.find({},  {sort : {createdAt: -1}});
-     }
+     },
+    incompleteCount() {
+       return Tasks.find({ checked : {$ne : true} }).count();
+    },
+
 });
 
+Template.task.helpers({
+    isOwner() {
+        return this.owner === Meteor.userId();
+    },
+});
+
+
+Template.body.onCreated(function  () {
+    this.state =  new ReactiveDict();
+    Meteor.subscribe('tasks');
+});
 
 Template.body.events({
     'submit .new-task'(event) {
@@ -18,21 +41,26 @@ Template.body.events({
         const target =  event.target;
         const text =  target.text.value;
 
-        Tasks.insert({text, createdAt : new Date()});
+        Meteor.call('tasks.insert', text);
 
         target.text.value ='';
+    },
+    'change .hide-completed input' (event, instance){
+        instance.state.set('hideCompleted',  event.target.checked);
     }
 });
 
 
 Template.task.events({
     'click .toggle-checked'() {
-        Tasks.update(this._id, {
-            $set : {checked : !this.checked}
-        });
+        Meteor.call('tasks.setChecked', this._id, !this.checked);
     },
 
     'click .delete'() {
-        Tasks.remove(this._id);
-    }
+        Meteor.call('tasks.remove', this._id);
+    },
+    'click .toggle-private'() {
+        Meteor.call('tasks.setPrivate', this._id, !this.private);
+    },
+
 });
