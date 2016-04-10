@@ -1,13 +1,16 @@
 import { Meteor } from 'meteor/meteor';
 import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
-
+import { taskTabular} from  './../api/taskTabular'
 import "./task.html"
 
 Template.task.helpers({
     isOwner() {
         return this.owner === Meteor.userId();
     },
+    tasTabularDataSource() {
+        return taskTabular;
+    }
 });
 
 

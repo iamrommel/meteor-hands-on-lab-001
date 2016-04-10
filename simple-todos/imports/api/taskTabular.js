@@ -1,4 +1,5 @@
-import {Tasks} from "../api/tasks"
+import {Tasks} from "./tasks"
+ 
 
 export const taskTabular =  new Tabular.Table({
     name : "TaskTabular",
